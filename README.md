@@ -24,11 +24,11 @@ Interface B1
 🔒 Mask:   255.255.255.0
 
 Interface A1
-✏️ IP:     104.93.23.293   →  104.97.23.100 ✅
+✏️ IP:     104.93.23.293 → 104.97.23.100 ✅
 🔒 Mask:   255.255.255.0
 
 Interface D1
-✏️ IP:     211.190.319.42  →  211.191.100.42 ✅
+✏️ IP:     211.190.319.42 → 211.191.100.42 ✅
 🔒 Mask:   255.255.0.0
 
 Interface C1
@@ -77,3 +77,42 @@ Interface C1
 🔒 Mask:   255.255.255.252
 ```
 ![levle2.JPG](level2/level2.JPG)
+
+# Nivel 3
+
+En este problema tenemos tres equipos conectados mediante un switch. Dado que solo están bloqueadas la IP del equipo A y la máscara del C, podemos calcular que la red que deben usar todos los equipos es `104.198.224.0/25`, con un rango de:  ( `104.198.224.1`  -  `104.198.224.126 `).
+
+
+## 🔹 Caso del equipo A
+
+Aunque lo más correcto y visual sería modificar la máscara por la más restringida (la del equipo C), es completamente innecesario y puede quedarse tal como está.
+
+## 🔹 Caso del equipo B
+
+En este caso cambiamos la IP por una que esté dentro del rango de la red calculada: `104.198.224.11`.  
+_(En mi opinión, es buena práctica reservar las primeras 10 IPs de la red para la puerta de enlace y algún servidor.)_  
+Al igual que en el caso del equipo A, la máscara puede quedarse tal como está.
+
+## 🔹 Caso del equipo C
+
+Igual que en el equipo B, solo hay que cambiar la IP por una dentro del rango: `104.198.224.12`.
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+🔒 IP:     104.198.224.125
+✏️ Mask:   255.255.255.0 ✅
+
+Interface B1
+✏️ IP:     127.168.42.42 → 104.198.224.11 ✅
+✏️ Mask:   255.255.0.0 ✅
+
+Interface C1
+✏️ IP:     104.198.224.277 → 104.198.224.12 ✅
+🔒 Mask:   255.255.255.128
+
+```
+![levle3.JPG](level3/level3.JPG)
