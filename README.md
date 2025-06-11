@@ -1,6 +1,6 @@
 # 42_NetPractice
-
-# Nivel 1
+<details>
+<summary> <h1>Nivel 1</h1></summary>
 
 El problema que se presenta involucra **dos redes**, cada una con **dos equipos conectados entre sí**. En cada red, **uno de los equipos está correctamente configurado**, mientras que el otro tiene una **IP no válida**, ya que alguno de sus **octetos supera el valor máximo permitido (255)**.
 
@@ -36,9 +36,10 @@ Interface C1
 🔒 Mask:   255.255.0.0
 ```
 ![levle1.JPG](level1/level1.JPG)
+</details>
 
-
-# Nivel 2
+<details>
+<summary> <h1>Nivel 2</h1></summary>
 
 En este problema volvemos a tener dos redes separadas con dos equipos cada una, igual que en el nivel anterior.
 
@@ -77,8 +78,10 @@ Interface C1
 🔒 Mask:   255.255.255.252
 ```
 ![levle2.JPG](level2/level2.JPG)
+</details>
 
-# Nivel 3
+<details>
+<summary> <h1>Nivel 3</h1></summary>
 
 En este problema tenemos tres equipos conectados mediante un switch. Dado que solo están bloqueadas la IP del equipo A y la máscara del C, podemos calcular que la red que deben usar todos los equipos es `104.198.224.0/25`, con un rango de:  ( `104.198.224.1`  -  `104.198.224.126 `).
 
@@ -113,6 +116,53 @@ Interface B1
 Interface C1
 ✏️ IP:     104.198.224.277 → 104.198.224.12 ✅
 🔒 Mask:   255.255.255.128
-
 ```
 ![levle3.JPG](level3/level3.JPG)
+
+</details>
+
+<details>
+<summary> <h1>Nivel 4</h1></summary>
+
+En este problema tenemos una red con dos equipos y un router conectados por un switch. El router tiene tres interfaces de red, por lo que podemos asumir que hay tres subredes. Parte del objetivo es que los equipos tengan conexión con toda la red y no solo entre ellos.
+
+## 🔹 Caso del equipo A
+
+Al tener la IP bloqueada y la máscara más alta de la subred, podemos calcular que la red es `80.121.117.128/28`, con un rango de:  (`80.121.117.129 - `80.121.117.142`). La máscara la dejamos tal como está.
+
+## 🔹 Caso del equipo B
+
+Solo hay que cambiar la IP por una que esté dentro del rango de la red `80.121.117.128/28` y, al ser la máscara menos restrictiva, puede quedarse tal como está.
+
+## 🔹 Caso del router R1
+
+En esta interfaz del router ocurre lo mismo que con el equipo B: asignar una IP dentro del rango calculado y mantener la máscara actual.
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+🔒 IP:     80.121.117.132
+✏️ Mask:   255.255.255.240 ✅
+
+Interface B1
+✏️ IP:     80.121.126.193 → 80.121.117.133 ✅
+✏️ Mask:   255.255.0.0 ✅
+
+Interface R1
+✏️ IP:     80.121.117.91 → 80.121.117.129 ✅
+✏️ Mask:   /23 ✅
+
+Interface R2
+🔒 IP:     80.121.117.1
+🔒 Mask:   255.255.255.128
+
+Interface R3
+🔒 IP:     80.121.117.244
+🔒 Mask:   255.255.255.192
+```
+![levle4.JPG](level4/level4.JPG)
+
+</details>
