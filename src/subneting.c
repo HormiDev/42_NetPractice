@@ -6,7 +6,7 @@
 /*   By: ide-dieg <ide-dieg@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 20:58:18 by ide-dieg          #+#    #+#             */
-/*   Updated: 2025/06/13 21:20:05 by ide-dieg         ###   ########.fr       */
+/*   Updated: 2025/06/15 01:21:39 by ide-dieg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,12 +152,78 @@ void ft_mask_to_octets(int mask, char *mask_str)
 	ft_sprintf(mask_str, "%d.%d.%d.%d", octet[0], octet[1], octet[2], octet[3]);
 }
 
+unsigned int ft_change_binary_digit(unsigned int num, int pos , int value)
+{
+	if (value == 1)
+		return (num | (1 << (32 - pos - 1)));
+	else if (value == 0)
+		return (num & ~(1 << (32 - pos - 1)));
+	return (num);
+}
+
+unsigned int ft_net_ip_calculate(unsigned int ip_value, int mask)
+{
+	int	i = 0;
+
+	while (i < 32)
+	{
+		if (i >= mask)
+			ip_value = ft_change_binary_digit(ip_value, i, 0);
+		i++;
+	}
+	return (ip_value);
+}
+
+unsigned int ft_broadcast_ip_calculate(unsigned int ip_value, int mask)
+{
+	int	i = 0;
+
+	while (i < 32)
+	{
+		if (i >= mask)
+			ip_value = ft_change_binary_digit(ip_value, i, 1);
+		i++;
+	}
+	return (ip_value);
+}
+
 void ft_print_ip_data(const char *ip, int mask)
 {
-	char mask_str[17]; 
+	char			mask_str[17];
+	unsigned int	ip_value;
+	char			**ip_split;
+	int				octets[4];
+	unsigned int	net_value;
+	unsigned int	broadcast_value;
+	unsigned int	range;
 
 	ft_mask_to_octets(mask, mask_str);
-	ft_printf(GREEN "IP Address: %s   Mask: %s\n" RESET, ip, mask_str);
+	ft_printf(CYAN "IP Address: %s   Mask: %s --> /%d\n" RESET, ip, mask_str, mask);
+	ip_split = ft_split_ae(ip, '.');
+	octets[0] = ft_atoi(ip_split[0]);
+	octets[1] = ft_atoi(ip_split[1]);
+	octets[2] = ft_atoi(ip_split[2]);
+	octets[3] = ft_atoi(ip_split[3]);
+	ip_value = octets[3] + (octets[2] * 256) + (octets[1] * 256 * 256) + (octets[0] * 256 * 256 * 256);
+	net_value = ft_net_ip_calculate(ip_value, mask);
+	ft_printf(GREEN "Network Address: %d.%d.%d.%d\n" RESET,
+		(net_value >> 24) & 0xFF, (net_value >> 16) & 0xFF,
+		(net_value >> 8) & 0xFF, net_value & 0xFF);
+	broadcast_value = ft_broadcast_ip_calculate(ip_value, mask);
+	range = 0;
+	if (broadcast_value > net_value)
+		range = (broadcast_value - net_value) - 1;
+	if (range > 0)
+		ft_printf(GREEN "Usable IP Range: (%d.%d.%d.%d - %d.%d.%d.%d) " RESET,
+			((net_value >> 24) & 0xFF), ((net_value >> 16) & 0xFF),
+			((net_value >> 8) & 0xFF), (net_value & 0xFF) + 1,
+			((broadcast_value >> 24) & 0xFF), ((broadcast_value >> 16) & 0xFF),
+			((broadcast_value >> 8) & 0xFF), (broadcast_value & 0xFF) - 1);
+	ft_dprintf(1, GREEN "Total Usable IPs: %ld\n" RESET, range);
+	ft_printf(GREEN "Broadcast Address: %d.%d.%d.%d\n" RESET,
+		(broadcast_value >> 24) & 0xFF, (broadcast_value >> 16) & 0xFF,
+		(broadcast_value >> 8) & 0xFF, broadcast_value & 0xFF);
+	
 }
 
 int main(int argc, char **argv)
@@ -182,7 +248,9 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	Mask = ft_get_mask_num(argv[2]);
+	ft_printf(YELLOW "----------------------------------NET-INFO----------------------------------\n" RESET);
 	ft_print_ip_data(argv[1], Mask);
+	ft_printf(YELLOW "----------------------------------------------------------------------------\n" RESET);
 	ft_alloc_clear();
 	return (0);
 }
