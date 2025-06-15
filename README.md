@@ -260,3 +260,102 @@ Router R Routes
 ![levle6.png](level6/level6.png)
 
 </details>
+
+<details>
+<summary> <h1>Nivel 7</h1></summary>
+
+En este caso, tenemos una red con **dos equipos**, cada uno conectado a un router. A su vez, los routers están conectados entre sí. Entre cada router y su respectivo equipo hay una subred, y entre los dos routers hay otra, lo que nos deja **tres subredes**.
+
+Debido a que en el **router 1**, las dos interfaces con las que se conecta tienen las **IP bloqueadas** y son **iguales hasta la máscara /24**, lo más sensato sería incrementar **en 2 la máscara** para crear **4 subredes**, ya que es lo mínimo que podemos subdividir para cubrir las tres subredes.
+
+### Subnetting Aplicado
+Aplicando **subnetting** sobre la red **111.198.14.0/24**, con un rango de **(111.198.14.1 - 111.198.14.254)**, creamos **4 nuevas subredes**:
+
+**111.198.14.0/26** con un rango de **(111.198.14.1 - 111.198.14.62)**
+**111.198.14.64/26** con un rango de **(111.198.14.65 - 111.198.14.126)**
+**111.198.14.128/26** con un rango de **(111.198.14.129 - 111.198.14.190)**
+**111.198.14.192/26** con un rango de **(111.198.14.193 - 111.198.14.254)**
+
+## 🔹 Caso del equipo A
+
+En este caso, la IP del router en la subred es `111.198.14.1/26` y el equipo A mantiene la IP `111.198.14.2`. Solo cambiamos la máscara de `255.255.255.0` a `255.255.255.192` (/26) para quedar en la subred `111.198.14.0/26`. Configuramos la ruta por defecto para que todo el tráfico hacia la subred del equipo C (`111.198.14.64/26`) u otras redes se envíe al router:
+
+## 🔹 Caso del equipo C
+
+En este caso, la IP del router en la subred de Equipo C es `111.198.14.129/26` y el equipo C mantiene la IP `111.198.14.130`. Solo cambiamos la máscara a `255.255.255.192` (/26) para quedar en la subred `111.198.14.128/26`. Configuramos la ruta por defecto para que todo el tráfico hacia otras subredes (p. ej. la subred de Equipo A `111.198.14.0/26`) se envíe al router:
+
+## 🔹 Caso del router 1
+
+IP preasignadas: 111.198.14.1/26 (hacia Equipo A) y 111.198.14.65/26 (hacia Router 2), ambas con máscara 255.255.255.192.  
+Enrutamiento:
+- Ruta directa a 111.198.14.0/26 (subred Equipo A).  
+- Ruta directa a 111.198.14.64/26 (enlace a Router 2).  
+- Ruta a 111.198.14.128/26 (subred Equipo C) vía 111.198.14.66 (IP de Router 2).
+
+## 🔹 Caso del router 2
+
+IP preasignadas: 111.198.14.66/26 (hacia Router 1) y 111.198.14.129/26 (hacia Equipo C), ambas con máscara 255.255.255.192.  
+Enrutamiento:
+- Ruta directa a 111.198.14.128/26 (subred Equipo C).  
+- Ruta directa a 111.198.14.64/26 (enlace a Router 1).  
+- Ruta a 111.198.14.0/26 (subred Equipo A) vía 111.198.14.65 (IP de Router 1).
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+✏️ IP:      111.198.14.2
+✏️ Máscara: 255.255.255.192 (/26)
+✏️ Gateway: 111.198.14.1
+
+Machine A - Rutas
+✏️ Destino: 0.0.0.0/0  => Gateway: 111.198.14.1
+
+
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+✏️ IP:     111.198.14.2 ✅
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Machine A Routes 
+✏️ 0.0.0.0/0  => ✏️ 0.0.0.0 → 111.198.14.64/26 => 111.198.14.1✅ 
+
+Interface C1
+✏️ IP:     111.198.14.1 → 111.198.14.75 ✅
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Machine C Routes 
+✏️ 0.0.0.0/0  => ✏️ 0.0.0.0 → 111.198.14.1/26 => 111.198.14.65 ✅
+
+Interface R11
+🔒 IP:     111.198.14.1 
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Interface R11
+🔒 IP:     111.198.14.254 
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Router R1 Routes 
+✏️ 0.0.0.0/0  => ✏️ 0.0.0.0 → 111.198.14.64/26 => 111.198.14.193 ✅
+
+Interface R21
+✏️ IP:     111.198.14.1 → 111.198.14.193✅
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Interface R22
+✏️ IP:     111.198.14.254 →111.198.14.65✅
+✏️ Mask:   255.255.255.0 → 255.255.255.192✅
+
+Router R2 Routes 
+✏️ 0.0.0.0/0  => ✏️ 0.0.0.0 → 111.198.14.1/26 => 111.198.14.254✅
+```
+![levle7.png](level7/level7.png)
+
+</details>
