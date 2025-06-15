@@ -166,3 +166,49 @@ Interface R3
 ![levle4.JPG](level4/level4.JPG)
 
 </details>
+
+<details>
+<summary> <h1>Nivel 5</h1></summary>
+
+En este caso tenemos una red con dos equipos conectados a través de un router, pero con la diferencia de que entre el router y cada equipo hay una subred con rangos de IP totalmente distintos, que en teoría no pueden comunicarse entre sí directamente. 
+
+Por eso, podemos utilizar **tablas de enrutamiento** para indicarle a los equipos que envíen todo el tráfico destinado a esas redes externas al router. El router se encargará de redirigir dicho tráfico correctamente hacia su destino.
+
+## 🔹 Caso del equipo A
+
+Al tener la IP bloqueada y la máscara del router, calculamos la red con la máscara del router `255.255.255.128`, que es la más restrictiva y nos da dirección de red `23.244.128.0` con un rango de (23.244.128.1 – 23.244.128.126); ponemos una IP dentro de ese rango al equipo y dejamos la máscara tal cual. En la tabla de enrutamiento `default` ponemos `0.0.0.0/0`, lo que redirige todo el tráfico hacia donde le indiquemos, así que lo redirigimos todo al router `23.244.128.126`.
+
+## 🔹 Caso del equipo B
+
+Al tener la IP bloqueada y la máscara del router, calculamos la red con la máscara `/28`, que es la más restrictiva y nos da dirección de red `157.115.166.240` con un rango de (`157.115.166.241` – `157.115.166.254`); ponemos una IP dentro de ese rango al equipo y dejamos la máscara tal cual. En la tabla de enrutamiento `default` es igual que poner `0.0.0.0/0`, lo que redirige todo el tráfico hacia donde le indiquemos, así que lo redirigimos todo al router `157.115.166.254`.
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+✏️ IP:     104.198.14.2 → 23.244.128.1 ✅
+✏️ Mask:   255.255.255.0 → 255.255.255.128 ✅
+
+Machine A Routes 
+✏️10.0.0.0/8  => ✏️192.168.0.254 → 0.0.0.0/0 => 23.244.128.126 ✅
+
+Interface B1
+✏️ IP:     192.168.42.42 → 157.115.166.251 ✅
+✏️ Mask:  /28 ✅
+
+Machine B Routes 
+🔒default  => ✏️192.168.0.254 → default  => 157.115.166.254 ✅
+
+Interface R1
+🔒 IP:     23.244.128.126
+🔒 Mask:  255.255.255.128
+
+Interface R2
+🔒 IP:     157.115.166.254
+🔒 Mask:   255.255.192.0
+```
+![levle5.png](level5/level5.png)
+
+</details>
