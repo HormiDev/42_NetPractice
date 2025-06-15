@@ -6,7 +6,7 @@
 /*   By: ide-dieg <ide-dieg@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 20:58:18 by ide-dieg          #+#    #+#             */
-/*   Updated: 2025/06/15 01:21:39 by ide-dieg         ###   ########.fr       */
+/*   Updated: 2025/06/15 10:29:43 by ide-dieg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,8 @@ void ft_print_ip_data(const char *ip, int mask)
 	unsigned int	range;
 
 	ft_mask_to_octets(mask, mask_str);
-	ft_printf(CYAN "IP Address: %s   Mask: %s --> /%d\n" RESET, ip, mask_str, mask);
+	ft_printf(CYAN "IP Address: %s%s%s   Mask: %s%s%s --> %s/%d\n" RESET, 
+		RESET, ip, CYAN, RESET, mask_str, CYAN, RESET, mask);
 	ip_split = ft_split_ae(ip, '.');
 	octets[0] = ft_atoi(ip_split[0]);
 	octets[1] = ft_atoi(ip_split[1]);
@@ -206,7 +207,7 @@ void ft_print_ip_data(const char *ip, int mask)
 	octets[3] = ft_atoi(ip_split[3]);
 	ip_value = octets[3] + (octets[2] * 256) + (octets[1] * 256 * 256) + (octets[0] * 256 * 256 * 256);
 	net_value = ft_net_ip_calculate(ip_value, mask);
-	ft_printf(GREEN "Network Address: %d.%d.%d.%d\n" RESET,
+	ft_printf(GREEN "Network Address: %s%d.%d.%d.%d\n" RESET, RESET,
 		(net_value >> 24) & 0xFF, (net_value >> 16) & 0xFF,
 		(net_value >> 8) & 0xFF, net_value & 0xFF);
 	broadcast_value = ft_broadcast_ip_calculate(ip_value, mask);
@@ -214,43 +215,135 @@ void ft_print_ip_data(const char *ip, int mask)
 	if (broadcast_value > net_value)
 		range = (broadcast_value - net_value) - 1;
 	if (range > 0)
-		ft_printf(GREEN "Usable IP Range: (%d.%d.%d.%d - %d.%d.%d.%d) " RESET,
-			((net_value >> 24) & 0xFF), ((net_value >> 16) & 0xFF),
-			((net_value >> 8) & 0xFF), (net_value & 0xFF) + 1,
+		ft_printf(GREEN "Usable IP Range: (%s%d.%d.%d.%d%s - %s%d.%d.%d.%d%s) " RESET,
+			RESET, ((net_value >> 24) & 0xFF), ((net_value >> 16) & 0xFF),
+			((net_value >> 8) & 0xFF), (net_value & 0xFF) + 1, GREEN, RESET,
 			((broadcast_value >> 24) & 0xFF), ((broadcast_value >> 16) & 0xFF),
-			((broadcast_value >> 8) & 0xFF), (broadcast_value & 0xFF) - 1);
+			((broadcast_value >> 8) & 0xFF), (broadcast_value & 0xFF) - 1, GREEN);
 	ft_dprintf(1, GREEN "Total Usable IPs: %ld\n" RESET, range);
-	ft_printf(GREEN "Broadcast Address: %d.%d.%d.%d\n" RESET,
+	ft_printf(GREEN "Broadcast Address: %s%d.%d.%d.%d\n" RESET, RESET,
 		(broadcast_value >> 24) & 0xFF, (broadcast_value >> 16) & 0xFF,
 		(broadcast_value >> 8) & 0xFF, broadcast_value & 0xFF);
 	
+}
+
+int ft_check_subnets(char *subnets, int mask)
+{
+	char	*tmp = subnets;
+	int		num_subnets;
+	int		i = 1;
+
+	while (*tmp)
+	{
+		if (!ft_isdigit(*tmp))
+		{
+			ft_dprintf(2, RED "%s is not a valid number of subnets.\n" RESET, subnets);
+			return (0);
+		}
+		tmp++;
+	}
+	num_subnets = ft_atoi(subnets);
+	while (mask < 32)
+	{
+		i *= 2;
+		if (i >= num_subnets)
+			return (1);
+		mask++;
+	}
+	ft_dprintf(2, RED "The number of subnets %d is too high for the given mask /%d.\n" RESET, num_subnets, mask);
+	return (0);
+}
+
+void ft_print_subnets(const char *ip, int mask, int num_subnets)
+{
+	char			mask_str[17];
+	unsigned int	ip_value;
+	char			**ip_split;
+	int				octets[4];
+	unsigned int	subnet_value;
+	int				i;
+	unsigned int 	jump;
+	unsigned int	broadcast_value;
+	unsigned int	range;
+	char 			header[77];
+
+	ip_split = ft_split_ae(ip, '.');
+	octets[0] = ft_atoi(ip_split[0]);
+	octets[1] = ft_atoi(ip_split[1]);
+	octets[2] = ft_atoi(ip_split[2]);
+	octets[3] = ft_atoi(ip_split[3]);
+	ip_value = octets[3] + (octets[2] * 256) + (octets[1] * 256 * 256) + (octets[0] * 256 * 256 * 256);
+	subnet_value = ft_net_ip_calculate(ip_value, mask);
+	i = 1;
+	while (i < num_subnets)
+	{
+		mask++;
+		i *= 2;
+	}
+	ft_mask_to_octets(mask, mask_str);
+	jump = ft_change_binary_digit(0, mask - 1, 1);
+	i = 0;
+	while (i < num_subnets)
+	{
+		ft_snprintf(header, 77, "----------------------------------SUBNET-%d---------------------------------------------------", i + 1);
+		ft_printf(MAGENTA "%s\n" RESET, header);
+		ft_printf(GREEN "Subnet Address: %s%d.%d.%d.%d%s   Mask: %s%s%s --> %s/%d\n" RESET,
+			RESET, (subnet_value >> 24) & 0xFF, (subnet_value >> 16) & 0xFF,
+			(subnet_value >> 8) & 0xFF, subnet_value & 0xFF, GREEN, RESET, mask_str, GREEN, RESET, mask);
+		broadcast_value = ft_broadcast_ip_calculate(subnet_value, mask);
+		range = 0;
+		if (broadcast_value > subnet_value)
+			range = (broadcast_value - subnet_value) - 1;
+		if (range > 0)
+			ft_printf(GREEN "Usable IP Range: (%s%d.%d.%d.%d%s - %s%d.%d.%d.%d%s) " RESET,
+				RESET, ((subnet_value >> 24) & 0xFF), ((subnet_value >> 16) & 0xFF),
+				((subnet_value >> 8) & 0xFF), (subnet_value & 0xFF) + 1,
+				GREEN, RESET, ((broadcast_value >> 24) & 0xFF), ((broadcast_value >> 16) & 0xFF),
+				((broadcast_value >> 8) & 0xFF), (broadcast_value & 0xFF) - 1, GREEN);
+		ft_dprintf(1, GREEN "Total Usable IPs: %s%ld\n" RESET, RESET, range);
+		ft_printf(GREEN "Broadcast Address: %s%d.%d.%d.%d\n" RESET, RESET,
+			(broadcast_value >> 24) & 0xFF, (broadcast_value >> 16) & 0xFF,
+			(broadcast_value >> 8) & 0xFF, broadcast_value & 0xFF);
+		ft_printf(MAGENTA "----------------------------------------------------------------------------\n\n" RESET);
+		subnet_value += jump;
+		i++;
+	}
 }
 
 int main(int argc, char **argv)
 {
 	int	Mask;
 
-	if (argc != 3)
+	if (argc < 3 || argc > 4)
 	{
-		ft_printf(YELLOW "Usage: %s <IP address> <Mask>\n" RESET, argv[0]);
+		ft_dprintf(2, YELLOW "Usage: %s <IP address> <Mask> [Number of subnets]\n" RESET, argv[0]);
 		return (1);
 	}
 	if (!ft_is_valid_ip(argv[1]))
 	{
-		ft_printf(RED "The IP address %s is invalid.\n" RESET, argv[1]);
+		ft_dprintf(2, RED "The IP address %s is invalid.\n" RESET, argv[1]);
 		ft_alloc_clear();
 		return (1);
 	}
 	if (!ft_is_valid_mask(argv[2]))
 	{
-		ft_printf(RED "The mask %s is invalid.\n" RESET, argv[2]);
+		ft_dprintf(2, RED "The mask %s is invalid.\n" RESET, argv[2]);
 		ft_alloc_clear();
 		return (1);
 	}
 	Mask = ft_get_mask_num(argv[2]);
+	if (argc == 4 && !ft_check_subnets(argv[3], Mask))
+	{
+		ft_alloc_clear();
+		return (1);
+	}
 	ft_printf(YELLOW "----------------------------------NET-INFO----------------------------------\n" RESET);
 	ft_print_ip_data(argv[1], Mask);
-	ft_printf(YELLOW "----------------------------------------------------------------------------\n" RESET);
+	ft_printf(YELLOW "----------------------------------------------------------------------------\n\n" RESET);
 	ft_alloc_clear();
+	if (argc == 4)
+	{
+		ft_print_subnets(argv[1], Mask, ft_atoi(argv[3]));
+	}
 	return (0);
 }
