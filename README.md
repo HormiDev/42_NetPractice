@@ -212,3 +212,51 @@ Interface R2
 ![levle5.png](level5/level5.png)
 
 </details>
+
+<details>
+<summary> <h1>Nivel 6</h1></summary>
+
+En este caso tenemos una red en la que un equipo se conecta a un router a través de un switch y, a su vez, el router se conecta a Internet.
+
+## 🔹 Caso del equipo A
+
+Dada su IP y su máscara, está dentro del rango del router, así que tiene comunicación directa con él; solo corregimos la dirección de enrutamiento para que apunte al router `58.13.5.254`.
+
+## 🔹 Caso del router R
+
+Su IP y su máscara se quedan como están, y en la tabla de enrutamiento redirigimos todo el tráfico a Internet poniendo `0.0.0.0/0`.
+
+## 🔹 Caso de Internet
+
+En la tabla de enrutamiento de lo que imagino es el servidor o el destino en Internet, redirigimos todo el tráfico de respuesta a nuestra red local `58.13.5.128/25` hacia la IP pública del router `163.172.250.12`.
+
+---
+
+## 💻 Configuración de interfaces
+
+```plaintext
+Interface A1
+🔒 IP:     58.13.5.227
+✏️ Mask:   255.255.255.0 ✅
+
+Machine A Routes 
+✏️ 0.0.0.0/0  => ✏️ 58.13.5.1 → 0.0.0.0/0  => 58.13.5.254 ✅
+
+Interface R1
+✏️ IP:     58.13.5.254 ✅
+🔒 Mask:   255.255.255.128
+
+Interface R2
+🔒 IP:     163.172.250.12
+🔒 Mask:   255.255.255.128
+
+Router R Routes 
+✏️ 10.0.0.0/8  => 🔒 163.172.250.1 → 0.0.0.0/0 => 163.172.250.1 ✅
+
+Router R Routes 
+✏️ 58.13.5.0/31  => 🔒 163.172.250.12 → 58.13.5.128/25 => 163.172.250.12 ✅
+```
+
+![levle6.png](level6/level6.png)
+
+</details>
