@@ -6,7 +6,7 @@
 /*   By: ide-dieg <ide-dieg@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 20:58:18 by ide-dieg          #+#    #+#             */
-/*   Updated: 2025/06/15 10:29:43 by ide-dieg         ###   ########.fr       */
+/*   Updated: 2025/06/17 01:58:07 by ide-dieg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,7 +220,7 @@ void ft_print_ip_data(const char *ip, int mask)
 			((net_value >> 8) & 0xFF), (net_value & 0xFF) + 1, GREEN, RESET,
 			((broadcast_value >> 24) & 0xFF), ((broadcast_value >> 16) & 0xFF),
 			((broadcast_value >> 8) & 0xFF), (broadcast_value & 0xFF) - 1, GREEN);
-	ft_dprintf(1, GREEN "Total Usable IPs: %ld\n" RESET, range);
+	ft_dprintf(1, GREEN "Total Usable IPs: %s%ld\n" RESET, RESET, range);
 	ft_printf(GREEN "Broadcast Address: %s%d.%d.%d.%d\n" RESET, RESET,
 		(broadcast_value >> 24) & 0xFF, (broadcast_value >> 16) & 0xFF,
 		(broadcast_value >> 8) & 0xFF, broadcast_value & 0xFF);
