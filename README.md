@@ -271,10 +271,10 @@ Debido a que en el **router 1**, las dos interfaces con las que se conecta tiene
 ### Subnetting Aplicado
 Aplicando **subnetting** sobre la red **111.198.14.0/24**, con un rango de **(111.198.14.1 - 111.198.14.254)**, creamos **4 nuevas subredes**:
 
-**111.198.14.0/26** con un rango de **(111.198.14.1 - 111.198.14.62)**
-**111.198.14.64/26** con un rango de **(111.198.14.65 - 111.198.14.126)**
-**111.198.14.128/26** con un rango de **(111.198.14.129 - 111.198.14.190)**
-**111.198.14.192/26** con un rango de **(111.198.14.193 - 111.198.14.254)**
+- **111.198.14.0/26** con un rango de **(111.198.14.1 - 111.198.14.62)**
+- **111.198.14.64/26** con un rango de **(111.198.14.65 - 111.198.14.126)**
+- **111.198.14.128/26** con un rango de **(111.198.14.129 - 111.198.14.190)**
+- **111.198.14.192/26** con un rango de **(111.198.14.193 - 111.198.14.254)**
 
 ## 🔹 Caso del equipo A
 
@@ -357,5 +357,31 @@ Router R2 Routes
 ✏️ 0.0.0.0/0  => ✏️ 0.0.0.0 → 111.198.14.1/26 => 111.198.14.254✅
 ```
 ![levle7.png](level7/level7.png)
+
+</details>
+
+<details>
+<summary> <h1>Nivel 8</h1></summary>
+
+# After
+
+![level8_after.png](level8/level8_after.png)
+
+# Before
+
+![level8_befor.png](level8/level8_before.png)
+
+</details>
+
+<details>
+<summary> <h1>Nivel 9</h1></summary>
+
+# After
+
+![level9_after.png](level9/level9_after.png)
+
+# Before
+
+![level9_befor.png](level9/level9_before.png)
 
 </details>
