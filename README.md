@@ -385,3 +385,16 @@ Router R2 Routes
 ![level9_befor.png](level9/level9_before.png)
 
 </details>
+
+<details>
+<summary> <h1>Nivel 10</h1></summary>
+
+# After
+
+![level9_after.png](level10/level10_after.png)
+
+# Before
+
+![level9_befor.png](level10/level10_before.png)
+
+</details>
