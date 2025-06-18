@@ -1,4 +1,172 @@
 # 42_NetPractice
+
+<details>
+<summary> <h1>¿Subneting?</h1></summary>
+
+## 🌐 ¿Qué es el Subneting?
+
+**Subneting** o **subneteo** es el proceso de dividir una red IP grande en subredes más pequeñas, conocidas como **subredes**. Esto permite:
+
+- Mejor organización de dispositivos.  
+- Reducción del tráfico innecesario.  
+- Aislamiento y mayor seguridad.  
+- Uso eficiente del espacio de direcciones IP.  
+
+Al segmentar una red, se asignan bloques de direcciones IP a distintos departamentos, zonas o propósitos, facilitando la administración y la escalabilidad.
+
+---
+
+### 📘 Ejemplo básico
+
+Partimos de la red `192.168.1.0/24`, que tiene:
+
+- **Dirección de red:** `192.168.1.0`  
+- **Broadcast:** `192.168.1.255`  
+- **Rango usable:** `192.168.1.1` – `192.168.1.254`  
+- **IPs usables totales:** 254  
+
+Si la dividimos en **2 subredes**, obtenemos dos bloques `/25`:
+
+#### Subred 1 (`/25`)
+- Dirección: `192.168.1.0`  
+- Máscara: `255.255.255.128` → `/25`  
+- Rango usable: `192.168.1.1` – `192.168.1.126`  
+- Broadcast: `192.168.1.127`  
+
+#### Subred 2 (`/25`)
+- Dirección: `192.168.1.128`  
+- Máscara: `255.255.255.128` → `/25`  
+- Rango usable: `192.168.1.129` – `192.168.1.254`  
+- Broadcast: `192.168.1.255`  
+
+---
+
+### 🧮 Descripción del cálculo en binario
+
+Para calcular la **dirección de red** y de **broadcast** se trabaja bit a bit:
+
+1. **Convertir IP y máscara a binario**  
+   - Cada octeto de la IP y de la máscara se traduce a 8 bits.  
+   - Por ejemplo, `192.168.1.130` y `/25`:
+     ```plaintext
+     IP:      192.168.1.130 → 11000000.10101000.00000001.10000010  
+     Máscara: 255.255.255.128 → 11111111.11111111.11111111.10000000
+     ```
+
+2. **Cálculo de la dirección de red**  
+   - Se aplica la operación **AND** (bitwise) entre la IP y la máscara:  
+     ```plaintext
+     11000000.10101000.00000001.10000010  (IP)  
+     AND 11111111.11111111.11111111.10000000  (Máscara)  
+     =   11000000.10101000.00000001.10000000  → 192.168.1.128
+     ```
+
+3. **Cálculo de la dirección de broadcast**  
+   - Se toman los bits de red (los primeros 25) y se fijan **todos los bits de host a 1**:  
+     ```plaintext
+     Red:      11000000.10101000.00000001.10000000  
+     Host bits:………………….01111111  
+     =   11000000.10101000.00000001.11111111  → 192.168.1.255
+     ```
+
+4. **Rango usable**  
+   - **Primera IP**: suma 1 a la dirección de red → `192.168.1.129`.  
+   - **Última IP**: resta 1 al broadcast → `192.168.1.254`.
+
+Con estos pasos en binario puedes determinar de forma precisa la red, el broadcast y el rango de hosts de cualquier bloque IP.
+
+
+</details>
+
+<details>
+<summary> <h1>Progarama de subneting</h1></summary>
+
+# 🧮 Subneting Tool (C)
+
+Este programa en C permite analizar una dirección IP junto con su máscara de red, y opcionalmente generar un número determinado de subredes. Se compila fácilmente con `make` y se ejecuta desde la terminal.
+
+---
+
+## 🚀 Compilación
+
+Asegúrate de tener `make` instalado. Luego, en la carpeta del proyecto, ejecuta:
+
+```bash
+make
+```
+
+Esto generará un ejecutable llamado `subneting`.
+
+---
+
+## 🧰 Uso
+
+```bash
+./subneting <Dirección IP> <Máscara> [Número de subredes]
+```
+
+- `<Dirección IP>`: Dirección IP que se desea analizar (por ejemplo, `192.168.1.1`)
+- `<Máscara>`: Máscara de red en formato decimal (`255.255.255.0`) o en notación CIDR (`/24`)
+- `[Número de subredes]`: (Opcional) Número de subredes deseadas a partir de la red proporcionada
+
+---
+
+## 📋 Ejemplo
+
+```bash
+./subneting 192.168.1.1 255.255.255.0 2
+```
+
+### Salida esperada:
+
+```plaintext
+----------------------------------NET-INFO----------------------------------
+IP Address: 192.168.1.1   Mask: 255.255.255.0 --> /24
+Network Address: 192.168.1.0
+Usable IP Range: (192.168.1.1 - 192.168.1.254) Total Usable IPs: 254
+Broadcast Address: 192.168.1.255
+----------------------------------------------------------------------------
+
+----------------------------------SUBNET-1----------------------------------
+Subnet Address: 192.168.1.0   Mask: 255.255.255.128 --> /25
+Usable IP Range: (192.168.1.1 - 192.168.1.126) Total Usable IPs: 126
+Broadcast Address: 192.168.1.127
+----------------------------------------------------------------------------
+
+----------------------------------SUBNET-2----------------------------------
+Subnet Address: 192.168.1.128   Mask: 255.255.255.128 --> /25
+Usable IP Range: (192.168.1.129 - 192.168.1.254) Total Usable IPs: 126
+Broadcast Address: 192.168.1.255
+----------------------------------------------------------------------------
+```
+
+---
+
+## 🧠 ¿Qué hace el programa?
+
+1. Valida la dirección IP y la máscara introducidas.
+2. Calcula la red a la que pertenece la IP.
+3. Muestra:
+   - Dirección IP
+   - Máscara (en formato decimal y CIDR)
+   - Dirección de red
+   - Rango de IPs utilizables
+   - Dirección de broadcast
+4. Si se proporciona un número de subredes:
+   - Calcula si es posible generarlas.
+   - Divide la red original en subredes válidas.
+   - Muestra la información detallada de cada subred generada.
+
+---
+
+## ✅ Requisitos
+
+- Compilador C (`cc`)
+- Herramienta `make` instalada en el sistema
+
+
+</details>
+
 <details>
 <summary> <h1>Nivel 1</h1></summary>
 
